@@ -1,0 +1,32 @@
+<h1>{{title}}</h1>
+
+<input type="text" #name placeholder="Enter Name" name="name"><br>
+<input type="text" #mobile placeholder="Mobile" name="mobile"><br>
+<input type="email" #email placeholder="Enter email" name="email"><br>
+<input type="password" #password placeholder="Password" name="password"><br>
+
+
+<button (click)="getValue(name.value,mobile.value,email.value)">Register</button>
+
+<h1>Your registered data</h1><br>
+<p>Name: {{dname}}</p>
+<p>Mobile: {{dmobile}}</p>
+<p>Email:{{demail}}</p>
+
+export class AppComponent {
+  title = 'Registration form';
+  dname=''
+  dmobile=''
+  demail=''
+
+  getValue(name:string,mobile:string,email:string){
+    this.dname=name;
+    this.dmobile=mobile;
+    this.demail=email;
+
+  }
+}
+
+npm install -g @angular/cli@latest
+ng new part-c
+ng serve
