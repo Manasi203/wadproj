@@ -1,0 +1,118 @@
+const express=require('express');
+const app=express();
+const bodyParser=require("body-parser");
+const ejs=require("ejs");
+app.use(express.static("public"));
+const mongoose=require('mongoose');
+app.set("view engine","ejs");
+
+app.use(bodyParser.urlencoded({extended:true}));
+//g4gMv8h6wCcSAMN4
+app.use(bodyParser.json());  
+mongoose.connect("mongodb+srv://manasibalgude200:g4gMv8h6wCcSAMN4@cluster0.m9qgbwu.mongodb.net/?retryWrites=true&w=majority")
+.then(()=>console.log("connection successful"));
+
+const studentSchema=mongoose.Schema({
+    name:String,
+    mobile:String,
+    wad_marks:{type:Number,min:0,max:100},
+    cns_marks:{type:Number,min:0,max:100},
+    ai_marks:{type:Number,min:0,max:100}
+
+});
+const Student=mongoose.model("Student",studentSchema);
+app.post("/add",(req,res)=>{
+    var stud=new Student(req.body);
+    stud.save().then(()=>console.log("done")).catch((err)=>{console.log(err)});
+})
+app.get("/students",(req,res)=>{
+
+   Student.find().count().then((c)=>{
+    Student.find().then((students)=>{
+            res.render("display",{students:students,count:c});
+    })
+   })
+})
+app.post("/delete/:id",(req,res)=>{
+    var id=req.params.id;
+    Student.findByIdAndDelete(id).then((students)=>{
+    res.redirect('/students');
+    })
+
+})
+app.post("/update/:id",(req,res)=>{
+    var name=req.params.id;
+    Student.findOneAndUpdate({name:name},{$set:{mobile:req.body.mobile,wad_marks:req.body.wad_marks,cns_marks:req.body.cns_marks,ai_marks:req.body.ai_marks}}).then((students)=>{
+        res.redirect('/students');
+    })
+})
+app.get("/toupdate/:id",(req,res)=>{
+    var name=req.params.id;
+    res.render("update",{name:name});
+})
+app.get("/",(req,res)=>{
+    res.render("index");
+})
+app.listen(3000,()=>{
+    console.log("Listening to port 3000");
+})
+
+
+<style>
+    tr th{
+        padding: 4px;
+    }
+</style>
+
+<% if(count!=null) {%>
+    <h1>Count = <%=count%></h1>    
+<% } %>
+
+<% if(students!=null) { %>
+    <table border="1px" >
+        <tr>
+            <th>Name</th>
+            <th>Mobile</th>
+            <th>WAD Marks</th>
+            <th>CNS Marks</th>
+         
+            <th>AI Marks</th>
+        </tr>
+        <% students.forEach(function(item){ %>
+            <tr>
+                <td><%=item.name%></td>
+                <td><%= item.mobile%></td>
+                <td><%= item.wad_marks%></td>
+                <td><%=item.cns_marks%></td>
+                <td><%= item.ai_marks%></td>
+                
+                <td>
+                    <form action="/delete/<%=item._id %>" method="post">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <form action="/toupdate/<%=item.name %>" method="get">
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            
+        <% })%>
+    </table>
+
+<%} %>
+
+<html>
+    <body>
+        <h1>update record for <%= name %></h1>
+    <form action="/update/<%= name %>" method="post">
+       
+        <input type="text" placeholder="mobile" name="mobile">
+        <input type="number" placeholder="wad_marks" name="wad_marks">
+        <input type="number" placeholder="cns_marks" name="cns_marks">
+        <input type="number" placeholder="ai_marks" name="ai_marks">
+     <button type="submit">submit</button>
+
+
+    </form>
+    </body>
+</html>
